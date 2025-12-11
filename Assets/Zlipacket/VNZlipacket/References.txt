@@ -1,0 +1,16 @@
+﻿
+
+
+
+Dialogue Format
+
+
+
+
+Line Segmentation
+{}
+
+{c}     =   clear
+{a}     =   append
+{wc n}  =   wait clear
+{wa n}  =   wait append
