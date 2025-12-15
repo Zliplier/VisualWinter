@@ -1,4 +1,6 @@
-﻿namespace Zlipacket.VNZlipacket.Dialogue.DialogueData
+﻿using Zlipacket.CoreZlipacket.System.Command;
+
+namespace Zlipacket.VNZlipacket.Dialogue.DialogueData
 {
     public class DialogueLine
     {

@@ -6,13 +6,13 @@ namespace Zlipacket.VNZlipacket.ScriptableObjects
     [CreateAssetMenu(fileName = "CharacterVNConfig", menuName = "VNZlipacket/CharacterVN Config")]
     public class SO_CharacterVNConfig : ScriptableObject
     {
-        public CharacterVNConfigData[] characters;
+        public CharacterConfigData[] characters;
 
-        public CharacterVNConfigData GetConfig(string name)
+        public CharacterConfigData GetConfig(string name)
         {
             for (int i = 0; i < characters.Length; i++)
             {
-                CharacterVNConfigData data = characters[i];
+                CharacterConfigData data = characters[i];
 
                 if (string.Equals(data.name.ToLower(), name.ToLower()) || string.Equals(data.alias.ToLower(), name.ToLower()))
                 {
@@ -20,7 +20,7 @@ namespace Zlipacket.VNZlipacket.ScriptableObjects
                 }
             }
             
-            return CharacterVNConfigData.DefaultData;
+            return CharacterConfigData.DefaultData;
         }
     }
 }

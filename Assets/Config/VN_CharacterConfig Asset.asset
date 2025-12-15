@@ -16,7 +16,7 @@ MonoBehaviour:
   - name: Haru
     alias: H
     characterType: 1
-    nameColor: {r: 0.7028302, g: 0.9524046, b: 1, a: 0}
-    dialogueColor: {r: 0.3798505, g: 0.7590826, b: 0.8301887, a: 0}
+    nameColor: {r: 0.7028302, g: 0.9524046, b: 1, a: 1}
+    dialogueColor: {r: 0.990566, g: 0.2569865, b: 0.28631005, a: 1}
     nameFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
     dialogueFont: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Zlipacket.VNZlipacket.Dialogue.DialogueData
+namespace Zlipacket.CoreZlipacket.System.Command
 {
     public class CommandData
     {

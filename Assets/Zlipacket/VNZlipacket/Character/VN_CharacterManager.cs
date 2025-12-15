@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using Zlipacket.CoreZlipacket.Tools;
 using Zlipacket.VNZlipacket.Dialogue;
@@ -6,9 +7,9 @@ using Zlipacket.VNZlipacket.ScriptableObjects;
 
 namespace Zlipacket.VNZlipacket.Character
 {
-    public class CharacterVNManager : Singleton<CharacterVNManager>
+    public class VN_CharacterManager : Singleton<VN_CharacterManager>
     {
-        private Dictionary<string, CharacterVN> characters = new Dictionary<string, CharacterVN>();
+        private Dictionary<string, VN_Character> characters = new Dictionary<string, VN_Character>();
         
         private SO_CharacterVNConfig config => DialogueSystem.Instance.config.CharacterConfig;
 
@@ -21,12 +22,12 @@ namespace Zlipacket.VNZlipacket.Character
         [SerializeField] private RectTransform _characterPanel = null;
         public RectTransform characterPanel => _characterPanel;
         
-        public CharacterVNConfigData GetCharacterConfig(string name)
+        public CharacterConfigData GetCharacterConfig(string name)
         {
             return config.GetConfig(name);
         }
         
-        public CharacterVN GetCharacter(string name, bool createIfDoesntExisted = false)
+        public VN_Character GetCharacter(string name, bool createIfDoesntExisted = false)
         {
             if (characters.ContainsKey(name.ToLower()))
                 return characters[name.ToLower()];
@@ -36,7 +37,9 @@ namespace Zlipacket.VNZlipacket.Character
             return null;
         }
         
-        public CharacterVN CreateCharacter(string name)
+        public bool HasCharacter(string name) => characters.ContainsKey(name.ToLower());
+        
+        public VN_Character CreateCharacter(string name, bool revealAfterCreation = false)
         {
             if (characters.ContainsKey(name.ToLower()))
             {
@@ -45,9 +48,12 @@ namespace Zlipacket.VNZlipacket.Character
             }
 
             CharacterVNInfo info = GetCharacterInfo(name);
-            CharacterVN character = CreateCharacterFromInfo(info);
+            VN_Character character = CreateCharacterFromInfo(info);
             
             characters.Add(name.ToLower(), character);
+
+            if (revealAfterCreation)
+                character.Show();
             
             return character;
         }
@@ -76,27 +82,75 @@ namespace Zlipacket.VNZlipacket.Character
 
         public string FormatCharacterPath(string path, string characterName) => path.Replace(CHARACTER_NAME_ID, characterName);
 
-        private CharacterVN CreateCharacterFromInfo(CharacterVNInfo info)
+        private VN_Character CreateCharacterFromInfo(CharacterVNInfo info)
         {
-            CharacterVNConfigData config = info.config;
+            CharacterConfigData config = info.config;
 
             switch (config.characterType)
             {
-                case CharacterVN.CharacterType.Text:
+                case VN_Character.CharacterType.Text:
                     return new CharacterText(name, config);
                 
-                case CharacterVN.CharacterType.Sprite:
-                case CharacterVN.CharacterType.SpriteSheet:
+                case VN_Character.CharacterType.Sprite:
+                case VN_Character.CharacterType.SpriteSheet:
                     return new CharacterSprite(name, config, info.prefab, info.rootCharacterFolder);
                 
-                case CharacterVN.CharacterType.Live2D:
+                case VN_Character.CharacterType.Live2D:
                     return new CharacterLive2D(name, config, info.prefab, info.rootCharacterFolder);
                 
-                case CharacterVN.CharacterType.Model3D:
+                case VN_Character.CharacterType.Model3D:
                     return new Character3DModel(name, config,  info.prefab, info.rootCharacterFolder);
                 
                 default:
                     return new CharacterText(name, config);
+            }
+        }
+
+        public void SortCharacters()
+        {
+            List<VN_Character> activeCharacters = characters.Values.
+                Where(c => c.root.gameObject.activeInHierarchy && c.isVisible).ToList();
+            List<VN_Character> inActiveCharacters = characters.Values.
+                Except(activeCharacters).ToList();
+            
+            activeCharacters.Sort((c1, c2) => c1.priority.CompareTo(c2.priority));
+            activeCharacters.Concat(inActiveCharacters);
+            
+            SortCharacters(activeCharacters);
+        }
+
+        public void SortCharacters(string[] names)
+        {
+            List<VN_Character> sortedCharacters = new List<VN_Character>();
+            sortedCharacters = names
+                .Select(name => GetCharacter(name))
+                .Where(character => character != null)
+                .ToList();
+
+            List<VN_Character> remainingCharacters = characters.Values
+                .Except(sortedCharacters)
+                .OrderBy(character => character.priority)
+                .ToList();
+            
+            sortedCharacters.Reverse();
+            
+            int startingPriority = remainingCharacters.Count > 0 ? remainingCharacters.Max(character => character.priority) : 0;
+            for (int i = 0; i < remainingCharacters.Count; i++)
+            {
+                VN_Character vnCharacter = remainingCharacters[i];
+                vnCharacter.SetPriority(startingPriority + i + 1);
+            }
+            
+            remainingCharacters.Concat(sortedCharacters); //Convert to all Characters.
+            SortCharacters(sortedCharacters);
+        }
+        
+        private void SortCharacters(List<VN_Character> charactersSortingOrder)
+        {
+            int i = 0;
+            foreach (VN_Character character in charactersSortingOrder)
+            {
+                character.root.SetSiblingIndex(i++);    
             }
         }
         
@@ -107,7 +161,7 @@ namespace Zlipacket.VNZlipacket.Character
             
             public string rootCharacterFolder = "";
             
-            public CharacterVNConfigData config = null;
+            public CharacterConfigData config = null;
             public GameObject prefab = null;
         }
     }

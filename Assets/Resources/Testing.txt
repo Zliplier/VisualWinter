@@ -1,16 +1,16 @@
-//Mike trudges into the homey, worn lobby.
+//Haru trudges into the homey, worn lobby.
 
-MIKE as Strange Man "Here we are at the homey." [wait]SimpleProcess(), Print()
+enter Haru as Strange Man "Here we are at the homey."
 
-MIKE "Hi.{wa 0.3} Mike Enslin, checking in —" Print_1p("This line is print form command in text file.")
+Haru at 1 [Haru_Sad] "Hi.{wa 0.3} Haru, checking in —"
 
 //The gregarious INNKEEPERS jump up, excited. They're country folk, beaming.
-MR.INNKEEPER "Oh, Mr. Enslin!{a} We were so worried you weren’t gonna show!"
+MR.INNKEEPER "Oh, Mr. Enslin!{a} We were so worried you weren’t gonna show!" Hide(Haru)
 
 MRS.INNKEEPER "It's such an honor to have you here."
 
 //disinterested
-MIKE "Yeah. Great. Uh,{wa 0.5} if I could just get my key —"
+Haru [Haru_Sad] "Yeah. Great. Uh,{wa 0.5} if I could just get my key —"
 
 //They ignore his exhaustion.
 MR.INNKEEPER "You probably want to hear all about our haunted history! Well, that rear staircase is where the maid reputedly hung herself in 1870."

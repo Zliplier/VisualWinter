@@ -2,12 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Zlipacket.CoreZlipacket.System.Command;
+using Zlipacket.CoreZlipacket.Tools;
+using Zlipacket.VNZlipacket.Character;
 using Zlipacket.VNZlipacket.Dialogue.DialogueData;
 
 namespace Zlipacket.VNZlipacket.Dialogue
 {
     public class ConversationManager
     {
+        public const string COMMENT_ID = "//";
+        
         private DialogueSystem dialogueSystem = DialogueSystem.Instance;
         private TextArchitect architect = null;
         private Coroutine process = null;
@@ -49,7 +53,7 @@ namespace Zlipacket.VNZlipacket.Dialogue
             for (int i = 0; i < conversation.Count; i++)
             {
                 //Skip Blank line or Comment
-                if (string.IsNullOrWhiteSpace(conversation[i]) || conversation[i].StartsWith("//"))
+                if (string.IsNullOrWhiteSpace(conversation[i]) || conversation[i].StartsWith(COMMENT_ID))
                     continue;
                 
                 DialogueLine line = DialogueParser.Parse(conversation[i]);
@@ -61,19 +65,45 @@ namespace Zlipacket.VNZlipacket.Dialogue
                 //Run any Command
                 if (line.hasCommand)
                     yield return Line_RunCommands(line);
-                
-                //if (line.hasDialogue)
+
+                if (line.hasDialogue)
+                {
                     yield return WaitForUserInput();
+
+                    CommandManager.Instance.StopAllProcess();
+                }
             }
         }
         
         IEnumerator Line_RunDialogue(DialogueLine line)
         {
             if (line.hasSpeaker)
-                dialogueSystem.ShowSpeakerName(line.speakerData.displayName);
+                HandleSpeakerLogic(line.speakerData);
             
             //Build Dialogue
             yield return BuildLineSegment(line.dialogueInfo);
+        }
+        
+        private void HandleSpeakerLogic(SpeakerData speakerData)
+        {
+            bool characterMustBeCreated = speakerData.makeCharacterEnter || speakerData.isCastingPosition || speakerData.isCastingExpression;
+            
+            VN_Character vnCharacter = VN_CharacterManager.Instance.GetCharacter(speakerData.name, createIfDoesntExisted: characterMustBeCreated);
+
+            if (speakerData.makeCharacterEnter && (!vnCharacter.isVisible && !vnCharacter.isRevealing))
+                vnCharacter.Show();
+            
+            dialogueSystem.ShowSpeakerName(speakerData.displayName);
+            dialogueSystem.ApplySpeakerDataToDialogueContainer(speakerData.name);
+            
+            if (speakerData.isCastingPosition)
+                vnCharacter.MoveToPosition(speakerData.castPosition);
+
+            if (speakerData.isCastingExpression)
+            {
+                foreach (var ce in speakerData.CastExpressions)
+                    vnCharacter.OnRecieveCastingExpression(ce.layer, ce.expression);
+            }
         }
         
         IEnumerator Line_RunCommands(DialogueLine line)
@@ -83,9 +113,19 @@ namespace Zlipacket.VNZlipacket.Dialogue
             foreach (CommandData.Command command in commands)
             {
                 //Debug.Log($"Run Command: {command.name}, Arguments: {command.arguments}");
-                
-                if (command.waitForCompletion)
-                    yield return CommandManager.Instance.Excute(command.name, command.arguments);
+                if (command.waitForCompletion || command.name == "wait")
+                {
+                    CoroutineWrapper cw = CommandManager.Instance.Excute(command.name, command.arguments);
+                    while (!cw.isDone)
+                    {
+                        if (userPrompt)
+                        {
+                            CommandManager.Instance.StopCurrentProcess();
+                            userPrompt = false;
+                        }
+                        yield return null;
+                    }
+                }
                 else
                     CommandManager.Instance.Excute(command.name, command.arguments);
             }

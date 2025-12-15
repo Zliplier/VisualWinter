@@ -2,10 +2,12 @@
 
 namespace Zlipacket.VNZlipacket.Character
 {
-    public class CharacterText : CharacterVN
+    public class CharacterText : VN_Character
     {
-        public CharacterText(string name, CharacterVNConfigData config) : base(name, config, null)
+        public CharacterText(string name, CharacterConfigData config) : base(name, config, null)
         {
+            
+            
         }
     }
 }

@@ -6,11 +6,11 @@ using Zlipacket.VNZlipacket.Dialogue;
 namespace Zlipacket.VNZlipacket.Character
 {
     [Serializable]
-    public class CharacterVNConfigData
+    public class CharacterConfigData
     {
         public string name;
         public string alias;
-        public CharacterVN.CharacterType characterType;
+        public VN_Character.CharacterType characterType;
 
         public Color nameColor;
         public Color dialogueColor;
@@ -18,9 +18,9 @@ namespace Zlipacket.VNZlipacket.Character
         public TMP_FontAsset nameFont;
         public TMP_FontAsset dialogueFont;
 
-        public CharacterVNConfigData Copy()
+        public CharacterConfigData Copy()
         {
-            CharacterVNConfigData result = new CharacterVNConfigData();
+            CharacterConfigData result = new CharacterConfigData();
             
             result.name = name;
             result.alias = alias;
@@ -37,15 +37,15 @@ namespace Zlipacket.VNZlipacket.Character
         
         private static Color defaultTextColor => DialogueSystem.Instance.config.defaultTextColor;
         private static TMP_FontAsset defaultFont => DialogueSystem.Instance.config.defaultFont;
-        public static CharacterVNConfigData DefaultData
+        public static CharacterConfigData DefaultData
         {
             get
             {
-                CharacterVNConfigData result = new CharacterVNConfigData();
+                CharacterConfigData result = new CharacterConfigData();
             
                 result.name = "";
                 result.alias = "";
-                result.characterType = CharacterVN.CharacterType.Text;
+                result.characterType = VN_Character.CharacterType.Text;
                 
                 result.nameFont = defaultFont;
                 result.dialogueFont = defaultFont;

@@ -55,13 +55,13 @@ namespace Zlipacket.VNZlipacket.Dialogue
 
         public void ApplySpeakerDataToDialogueContainer(string speakerName)
         {
-            CharacterVN character = CharacterVNManager.Instance.GetCharacter(speakerName);
-            CharacterVNConfigData config = character != null ? character.config : CharacterVNManager.Instance.GetCharacterConfig(speakerName);
+            VN_Character vnCharacter = VN_CharacterManager.Instance.GetCharacter(speakerName);
+            CharacterConfigData config = vnCharacter != null ? vnCharacter.config : VN_CharacterManager.Instance.GetCharacterConfig(speakerName);
             
             ApplySpeakerDataToDialogueContainer(config);
         }
         
-        public void ApplySpeakerDataToDialogueContainer(CharacterVNConfigData config)
+        public void ApplySpeakerDataToDialogueContainer(CharacterConfigData config)
         {
             dialogueContainer.SetDialogueColor(config.dialogueColor);
             dialogueContainer.SetDialogueFont(config.dialogueFont);
